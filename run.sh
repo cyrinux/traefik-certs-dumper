@@ -24,14 +24,14 @@ dump() {
   else
     log "Certificate or key differ, updating"
     mv ${WORKDIR}/${domain}/*.pem /output/
-
-    if [ ! -z "${CONTAINERS#}" ]; then
-      log "Trying to restart containers"
-      restart_containers
-    fi
+    RESTART=1
   fi
   done
 
+  if [ ! -z "${CONTAINERS#}" ] && [ -z $RESTART ]; then
+    log "Trying to restart containers"
+    restart_containers
+  fi
 }
 
 restart_containers() {
@@ -145,6 +145,7 @@ split_list_restart_containers() {
 
 split_list_domains() {
   IFS=',' read -ra DOMAINS <<<"$1"
+  [ -n "$DOMAIN" ] && DOMAINS+=("$DOMAIN")
   log "Values split! Got '${DOMAINS[@]}'"
 }
 
